@@ -1,74 +1,110 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_2fa/flutter_2fa.dart';
+import 'package:http/http.dart' as http;
+import 'api_services/auth_service.dart';
+import 'login.dart';
 
-class auth extends StatefulWidget {
-  const auth({super.key});
+
+ // Import your AuthService class
+
+class OtpVerificationPage extends StatefulWidget {
+  final String email;
+
+  OtpVerificationPage({required this.email});
 
   @override
-  State<auth> createState() => _authState();
+  _OtpVerificationPageState createState() => _OtpVerificationPageState();
 }
 
-class _authState extends State<auth> {
+class _OtpVerificationPageState extends State<OtpVerificationPage> {
+  final _otpController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[200], // Background color for the entire page
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(25),
+      appBar:  AppBar(
+        backgroundColor: Colors.blue,
+        elevation: 0,
+        title: Text(
+          "otp validation",
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+
             children: [
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    // Handle 2FA activation
-                    await Flutter2FA().activate(
-                      context: context,
-                      appName: "Flutter 2FA",
-                      email: "hipheckt@xyz.com",
-                    );
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(Colors.blue), // Change color if needed
-                  ),
-                  child: const Text('Activate 2FA'),
+              // Text above the TextFormField
+              Text(
+                'Please check your email for the verification code and enter it below.',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
                 ),
               ),
-              const SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    // Handle 2FA verification
-                    await Flutter2FA().verify(
-                      context: context,
-                      page: const Success(), // Ensure Success is a valid page
-                    );
-                  },
-                  style: ButtonStyle(
-                    backgroundColor: MaterialStateProperty.all<Color>(Colors.green), // Change color if needed
-                  ),
-                  child: const Text('Login with 2FA'),
-                ),
+              SizedBox(height: 10),
+              TextFormField(
+                controller: _otpController,
+                decoration: InputDecoration(labelText: 'Enter OTP'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the OTP sent to your email';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    try {
+                      final response = await http.post(
+                        Uri.parse('https://bilalsas.pythonanywhere.com/user/verify/otp/'),
+                        body: {
+                          'email': widget.email,
+                          'otp': _otpController.text,
+                        },
+                      );
+
+                      if (response.statusCode == 200) {
+                        // OTP verified successfully
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('OTP verified successfully!')),
+                        );
+                        // Navigate to LoginPage
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      } else {
+                        // OTP verification failed
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('OTP verification failed: ${response.body}')),
+                        );
+                      }
+                    } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('OTP verification failed: $e')),
+                      );
+                    }
+                  }
+                },
+                child: Text('Verify OTP'),
               ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-class Success extends StatelessWidget {
-  const Success({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text("user logged In Successfully!")),
     );
   }
 }

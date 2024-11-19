@@ -1,9 +1,17 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:work_project/passwordreset.dart';
 import 'package:work_project/signup.dart';
 import 'package:work_project/userprofile.dart';
+import 'api_services/token_store.dart';
 import 'auth.dart';
+import 'complaint_catgory.dart';
+import 'footer.dart';
+import 'homepage.dart';
 import 'homescreen.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   @override
@@ -11,18 +19,30 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _emailOrPhoneNumberController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  // Define custom colors
+  final Color primaryColor = Color(0xFF7C7878);
+  final Color secondaryColor = Color(0xFF7C7878); // Light
+  final Color buttonColor = Color(0xffD7D9DC); // Dark
+  final Color textColor = Colors.white;
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
+
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white70,
         elevation: 0,
         title: Text(
-          "Login",
+          "تسجيل الدخول",
           style: TextStyle(
-            color: Colors.white,
+            color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
@@ -30,165 +50,242 @@ class _LoginPageState extends State<LoginPage> {
         centerTitle: true,
       ),
       extendBodyBehindAppBar: true, // Extend the body behind the app bar
-      body: Scaffold(
-        body: Stack(
-          children: [
-            // Background gradient
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.green, Colors.greenAccent],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+      body: Container(
+        child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Stack(
+            children: [
+              // Background gradient with custom colors
+              Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/cover.png'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            SingleChildScrollView(
-              child: Container(
-                width: size.width,
-                padding: EdgeInsets.symmetric(
-                    horizontal: 24, vertical: size.height * 0.2),
-                child: Column(
-                  children: [
-                    // Logo
-                    Image.asset(
-                      'assets/images/ptg.png', // Path to your logo
-                      width: size.width *
-                          0.5, // Adjust the size based on your needs
-                    ),
-                    SizedBox(height: 20),
+              SingleChildScrollView(
+                child: Container(
+                  width: size.width,
+                  padding: EdgeInsets.symmetric(
+                      horizontal: 24, vertical: size.height * 0.2),
+                  child: Column(
+                    children: [
+                      // Logo
+                      Image.asset(
+                        'assets/images/logo.png', // Path to your logo
+                        width: size.width *
+                            0.5, // Adjust the size based on your needs
+                      ),
+                      SizedBox(height: 20),
 
-                    // Email/Phone TextField
-                    _buildTextField(
-                      hintText: "Email or Phone number",
-                      icon: Icons.email_outlined,
-                    ),
+                      // Email/Phone TextField with custom colors
+                      _buildTextField(
+                        hintText: "البريد الإلكتروني أو رقم الهاتف",
+                        icon: Icons.email_outlined,
+                      ),
 
-                    SizedBox(height: 20),
+                      SizedBox(height: 20),
 
-                    // Password TextField
-                    _buildTextField(
-                      hintText: "Password",
-                      icon: Icons.lock_outline,
-                      obscureText: true,
-                    ),
+                      // Password TextField with custom colors
+                      _buildTextField(
+                        hintText: "كلمة المرور",
+                        icon: Icons.lock_outline,
+                        obscureText: true,
+                      ),
 
-                    SizedBox(height: 20),
+                      SizedBox(height: 20),
 
-                    // Forgot Password and 2-Step Auth links
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        GestureDetector(
+                      // Forgot Password and 2-Step Auth links
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        PasswordRecoveryScreen()),
+                              );
+                            },
+                            child: Text(
+                              "هل نسيت كلمة المرور؟",
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 20,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => OtpVerificationPage(
+                                          email: '',
+                                        )),
+                              );
+                            },
+                            child: Text(
+                              "المصادقة الثنائية",
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 16,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: 40),
+
+                      // Login Button with custom color
+                      MaterialButton(
+                        elevation: 0,
+                        padding: EdgeInsets.all(18),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                          onPressed: () async {
+                            final emailOrPhoneNumber =
+                                _emailOrPhoneNumberController.text;
+                            final password = _passwordController.text;
+
+                            try {
+                              final response = await http.post(
+                                Uri.parse(
+                                    'https://bilalsas.pythonanywhere.com/user/login/'),
+                                body: {
+                                  'email_or_phone_number': emailOrPhoneNumber,
+                                  'password': password,
+                                },
+                              );
+
+                              if (response.statusCode == 200) {
+                                final responseData = json.decode(response.body);
+
+                                // Check if the 'token' object and its keys are present
+                                if (responseData['token'] != null &&
+                                    responseData['token']['access'] != null &&
+                                    responseData['token']['refresh'] != null) {
+                                  final accessToken =
+                                      responseData['token']['access'];
+                                  final refreshToken =
+                                      responseData['token']['refresh'];
+
+                                  // Save tokens to SharedPreferences
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  await prefs.setString(
+                                      'access_token', accessToken);
+                                  await prefs.setString(
+                                      'refresh_token', refreshToken);
+
+
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Login successful! Tokens saved.')),
+                                  );
+
+                                  // Navigate to MainPage
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => DynamicButtonsPage(token: accessToken)),
+                                  );
+                                } else {
+                                  // Token keys missing in the response
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Invalid response: Tokens missing.')),
+                                  );
+                                }
+                              } else {
+                                // HTTP error occurred
+                                print('Error response: ${response.body}');
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content:
+                                          Text('Login failed: ${response.body}')),
+                                );
+                              }
+                            } catch (e) {
+                              // Network or decoding error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Login failed: $e')),
+                              );
+                            }
+                          },
+                        child: Ink(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Color(0xFF7C7878), Color(0xFF7C7878)],
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Container(
+                            alignment: Alignment.center,
+                            width: double.infinity,
+                            child: Text(
+                              "تسجيل الدخول",
+                              style: TextStyle(
+                                color: textColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: 30),
+
+                      // Create Account link
+                      Center(
+                        child: GestureDetector(
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) =>
-                                      PasswordRecoveryScreen()),
+                                  builder: (context) => RegistrationPage()),
                             );
                           },
                           child: Text(
-                            "Forgot Password?",
+                            "إنشاء حساب",
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => auth()),
-                            );
-                          },
-                          child: Text(
-                            "2-Step Auth",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              decoration: TextDecoration.underline,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    SizedBox(height: 40),
-
-                    // Login Button
-                    MaterialButton(
-                      elevation: 0,
-                      padding: EdgeInsets.all(18),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => HomeScreen()),
-                        );
-                      },
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            colors: [Colors.green, Colors.lightGreen],
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: double.infinity,
-                          child: Text(
-                            "Login",
-                            style: TextStyle(
-                              color: Colors.white,
+                              color: textColor,
+                              fontSize: 30,
                               fontWeight: FontWeight.bold,
-                              fontSize: 40,
+                              decoration: TextDecoration.underline,
                             ),
                           ),
                         ),
                       ),
-                    ),
-
-                    SizedBox(height: 30),
-
-                    // Create Account link
-                    Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => RegistrationPage()),
-                          );
-                        },
-                        child: Text(
-                          "Create account",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+              // Positioned(
+              //   bottom: 0, // Position the footer at the bottom
+              //   left: 0,
+              //   right: 0,
+              //   child: FooterWidget(), // Use the FooterWidget here
+              // ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Reusable text field widget with icons
+  // Reusable text field widget with icons and custom colors
   Widget _buildTextField({
     required String hintText,
     required IconData icon,
@@ -207,9 +304,11 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
       child: TextField(
+        controller:
+            obscureText ? _passwordController : _emailOrPhoneNumberController,
         obscureText: obscureText,
         decoration: InputDecoration(
-          prefixIcon: Icon(icon, color: Colors.green),
+          prefixIcon: Icon(icon, color: primaryColor),
           hintText: hintText,
           hintStyle: TextStyle(color: Colors.grey),
           border: InputBorder.none,

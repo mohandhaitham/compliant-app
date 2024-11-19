@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:work_project/userprofile.dart';
 
 class TrainingProgramScreen extends StatelessWidget {
   @override
@@ -82,6 +83,11 @@ class TrainingProgramScreen extends StatelessWidget {
               ),
               child: InkWell(
                 onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => ProfilePage()),
+                  );
                   // Define what happens when the card is clicked
                   print("${programs[index]['title']} clicked");
                 },

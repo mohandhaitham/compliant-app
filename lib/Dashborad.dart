@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-
-
 class Complaint {
   final String id;
   final String details;
@@ -34,20 +32,24 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("User Dashboard")),
+      appBar: AppBar(
+        title: Text("User Dashboard"),
+        backgroundColor: Colors.green, // Green color for the app bar
+      ),
       body: ListView.builder(
         itemCount: complaints.length,
         itemBuilder: (context, index) {
           final complaint = complaints[index];
           return Card(
             margin: EdgeInsets.all(10),
+            color: Colors.green[50], // Light green background for each card
             child: ListTile(
-              title: Text("Complaint ID: ${complaint.id}"),
+              title: Text("Complaint ID: ${complaint.id}", style: TextStyle(color: Colors.green)),
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text("Details: ${complaint.details}"),
-                  Text("Status: ${complaint.status}", style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text("Status: ${complaint.status}", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
                   SizedBox(height: 5),
                   ElevatedButton(
                     onPressed: () {
@@ -55,6 +57,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       updateStatus(complaint, "In Progress");
                     },
                     child: Text("Update Status"),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white, backgroundColor: Colors.green, // White text color
+                    ),
                   ),
                   TextButton(
                     onPressed: () {
@@ -64,8 +69,12 @@ class _DashboardPageState extends State<DashboardPage> {
                         MaterialPageRoute(builder: (context) => HistoryLogPage(complaint: complaint)),
                       );
                     },
-                    child: Text("View History Log"),
-                  )
+                    child: Text("View History Log", style: TextStyle(color: Colors.green)),
+                  ),
+                  // DAQ Button
+
+                  // Feedback Button
+
                 ],
               ),
             ),
@@ -84,7 +93,7 @@ class HistoryLogPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("History Log for ${complaint.id}")),
+      appBar: AppBar(title: Text("History Log for ${complaint.id}"), backgroundColor: Colors.green),
       body: ListView.builder(
         itemCount: complaint.history.length,
         itemBuilder: (context, index) {

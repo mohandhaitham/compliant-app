@@ -38,6 +38,12 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_2fa: ^1.0.4
   image_picker: ^1.1.2
+  file_picker: ^8.1.4
+  google_maps_flutter: ^2.1.8
+  geolocator: ^13.0.1
+  shared_preferences: ^2.3.3
+  permission_handler: ^11.3.1
+  dio: ^5.7.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -67,7 +73,11 @@ flutter:
     - assets/images/alhussam.png
     - assets/images/A213D95E.jpg
     - assets/images/atria.png
-    - assets/images/ptg.png
+    - assets/images/logo.png
+    - assets/images/giz-logo.png
+    - assets/images/giz-logo2.png
+    - assets/images/giz2.png
+    - assets/images/cover.png
   #   - images/ptg.png
 
   # An image asset can refer to one or more resolution-specific "variants", see

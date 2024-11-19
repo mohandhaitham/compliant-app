@@ -8,12 +8,10 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Sample user data
   String name = "John Doe";
   String email = "johndoe@example.com";
   String phone = "+1 (555) 123-4567";
 
-  // Sample complaint history
   List<Map<String, String>> complaints = [
     {"date": "2023-09-01", "status": "Resolved", "issue": "Late delivery"},
     {"date": "2023-09-10", "status": "Pending", "issue": "Damaged product"}
@@ -26,7 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text("User Profile"),
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.green, // Green AppBar
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -34,18 +32,16 @@ class _ProfilePageState extends State<ProfilePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Centered Profile Image
               CircleAvatar(
                 radius: 60,
-                backgroundImage: AssetImage('assets/profile_image.png'), // Add your own image path here
+                backgroundImage: AssetImage('assets/profile_image.png'),
               ),
               SizedBox(height: 20),
 
-              // Personal Information Section with modern style
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: Colors.green[50],
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Column(
@@ -91,11 +87,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
               SizedBox(height: 20),
 
-              // Complaint History Section with modern style
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: Colors.green[50],
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Column(
@@ -127,11 +122,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
               SizedBox(height: 20),
 
-              // Settings Section with Switch and Navigation Buttons
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.blue[50],
+                  color: Colors.green[50],
                   borderRadius: BorderRadius.circular(15),
                 ),
                 child: Column(
@@ -154,7 +148,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
               SizedBox(height: 20),
 
-              // Navigation to UserForm
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -163,7 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.green, // Green button color
                   minimumSize: Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -174,7 +167,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
               SizedBox(height: 15),
 
-              // Navigation to DashboardPage
               ElevatedButton(
                 onPressed: () {
                   Navigator.push(
@@ -183,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.green, // Green button color
                   minimumSize: Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
+import 'FAQPage.dart';
+import 'FeedbackPage.dart';
+
 class UserForm extends StatefulWidget {
   @override
   _UserFormState createState() => _UserFormState();
@@ -42,7 +45,7 @@ class _UserFormState extends State<UserForm> {
           'Submit Complaint',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.green,
         elevation: 0,
       ),
       body: Padding(
@@ -134,10 +137,8 @@ class _UserFormState extends State<UserForm> {
                 icon: Icon(Icons.attach_file),
                 label: Text(attachedFile == null
                     ? 'Attach a file or image'
-                    : 'File attached: ${attachedFile!.path.split('/').last}'
-                ,style: TextStyle(color: Colors.white)),
+                    : 'File attached: ${attachedFile!.path.split('/').last}'),
                 style: ElevatedButton.styleFrom(
-
                   padding: EdgeInsets.all(16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -157,16 +158,65 @@ class _UserFormState extends State<UserForm> {
                     );
                   }
                 },
-                child: Text('Submit Complaint',
-                    style: TextStyle(color: Colors.white)),
+                child: Text(
+                  'Submit Complaint',
+                  style: TextStyle(color: Colors.white, fontSize: 25),
+                ),
                 style: ElevatedButton.styleFrom(
-
                   padding: EdgeInsets.all(18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                   backgroundColor: Colors.green,
                 ),
+              ),
+              SizedBox(height: 30),
+
+              // Row for FAQ and Feedback buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // FAQ Button
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FAQPage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.lightGreen, // Light Green color
+                      minimumSize: Size(120, 40), // Smaller size
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Text(
+                      "FAQ",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                  // Feedback Button
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => FeedbackPage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.lightGreen, // Light Green color
+                      minimumSize: Size(120, 40), // Smaller size
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: Text(
+                      "Feedback",
+                      style: TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
